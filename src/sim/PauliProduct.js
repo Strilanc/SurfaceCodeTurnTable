@@ -56,7 +56,7 @@ class QubitAxis {
 
 class PauliProduct {
     /**
-     * @param {!int} phase_exponent
+     * @param {!int} phase_exponent Power of i.
      * @param {!Uint8Array} paulis
      */
     constructor(phase_exponent, paulis) {
@@ -236,6 +236,19 @@ class PauliProduct {
         }
         this.phase_exponent &= 3;
         return this;
+    }
+
+    /**
+     * @param {!int} n
+     * @param {!function(!int):!int} indexFunc
+     * @returns {!PauliProduct}
+     */
+    scatter(n, indexFunc) {
+        let result = new PauliProduct(this.phase_exponent, new Uint8Array(n));
+        for (let i = 0; i < this.paulis.length; i++) {
+            result.paulis[indexFunc(i)] = this.paulis[i];
+        }
+        return result;
     }
 
     /**

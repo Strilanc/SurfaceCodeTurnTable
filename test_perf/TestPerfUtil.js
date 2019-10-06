@@ -41,8 +41,8 @@ function getKnownPerfTests() {
 /**
  * @param {!string} name
  * @param {!{duration_nanos: !int, description: !string}} targetDuration
- * @param {!function(*):*} method
- * @param {undefined|*=undefined} arg
+ * @param {!function(*):*} method Performance tested method.
+ * @param {undefined|*=undefined} arg Precomputed argument value to pass into the performance tested method.
  * @param {!function(*):void} cleanup
  */
 function perfGoal(name, targetDuration, method, arg=undefined, cleanup=undefined) {
