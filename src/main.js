@@ -29,6 +29,7 @@ import {initUrlSync} from "src/ui/Url.js";
 import {initClear} from "src/ui/Clear.js";
 import {initExports, obsExportsIsShowing} from "src/ui/Export.js";
 import {PlacedStabilizer} from "src/PlacedStabilizer.js";
+import {CacheStabilizerSim} from "src/sim/CacheStabilizeSim.js";
 
 const canvas = /** @type {!HTMLCanvasElement} */ document.getElementById('main-canvas');
 const canvasDiv = /** @type {!HTMLDivElement} */ document.getElementById('main-canvas-div');
@@ -291,7 +292,8 @@ function yConfigStabilizers(n, d) {
 
 let n = 10;
 let codeDistance = n - 1;
-let sim = new ChpSimulator((codeDistance + 2)*(codeDistance + 2) + 1);
+let sim = new CacheStabilizerSim(
+    new ChpSimulator((codeDistance + 2)*(codeDistance + 2) + 1));
 stabilizerGroups.push(new StabilizerGroup("Standard", PlacedStabilizer.latticeSurgeryPatch(codeDistance)));
 stabilizerGroups.push(new StabilizerGroup("force X", init(n, 'X')));
 stabilizerGroups.push(new StabilizerGroup("force Z", init(n, 'Z')));

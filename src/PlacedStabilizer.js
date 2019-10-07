@@ -1,9 +1,10 @@
-/** A PauliProduct with associated locations. */
+/** PauliProduct with associated locations. */
 
 import {PauliProduct} from "src/sim/PauliProduct.js";
 import {Point} from "src/base/Point.js";
 import {Complex} from "src/base/Complex.js";
 import {GeneralMap} from "src/base/GeneralMap.js";
+import {CacheStabilizerSim, SimStabilizer} from "src/sim/CacheStabilizeSim.js";
 
 /**
  * @param {!string} pauliText
@@ -43,6 +44,7 @@ function pauliColor(pauliText, brightness) {
     return levels[0];
 }
 
+/** A PauliProduct with associated locations. */
 class PlacedStabilizer {
     /**
      * @param {!Array.<!Point>} points
@@ -347,12 +349,16 @@ class PlacedStabilizer {
     }
 
     /**
-     * @param {!ChpSimulator} sim
+     * @param {!ChpSimulator|!CacheStabilizerSim} sim
      * @param {!function(!Point): *} qubitAt
      * @param {!number} bias
      * @returns {!boolean}
      */
     measure(sim, qubitAt, bias=undefined) {
+        if (sim instanceof CacheStabilizerSim) {
+            return sim.measure(new SimStabilizer(this.points.map(qubitAt), this.paulis), bias).result;
+        }
+
         let ancilla = sim.qalloc();
         try {
             this.cnotOnto(sim, qubitAt, ancilla);
@@ -363,11 +369,15 @@ class PlacedStabilizer {
     }
 
     /**
-     * @param {!ChpSimulator} sim
+     * @param {!ChpSimulator|!CacheStabilizerSim} sim
      * @param {!function(!Point): *} qubitAt
      * @returns {!number}
      */
     probability(sim, qubitAt) {
+        if (sim instanceof CacheStabilizerSim) {
+            return sim.probability(new SimStabilizer(this.points.map(qubitAt), this.paulis))
+        }
+
         let ancilla = sim.qalloc();
         try {
             this.cnotOnto(sim, qubitAt, ancilla);
@@ -381,7 +391,7 @@ class PlacedStabilizer {
 
     /**
      * @param {!CanvasRenderingContext2D} ctx
-     * @param {!ChpSimulator} sim
+     * @param {!ChpSimulator|!CacheStabilizerSim} sim
      * @param {!function(!Point): *} qubitAt
      * @param {!boolean} active
      */
