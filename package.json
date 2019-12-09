@@ -1,12 +1,12 @@
 {
-  "name": "zigxag",
-  "title": "ZigXag",
-  "description": "A point-and-click ZX graph editor, simulator, and conversion tool.",
+  "name": "surface-code-turn-table",
+  "title": "Surface Code Turn Table",
+  "description": "Experimental surface code simulator where the user activates/deactivates stabilizer configurations.",
   "license": "Apache-2.0",
   "version": "0.0.1",
-  "homepage": "https://github.com/Strilanc/ZigXag",
+  "homepage": "https://github.com/Strilanc/SurfaceCodeTurnTable",
   "bugs": {
-    "url": "https://github.com/Strilanc/ZigXag/issues"
+    "url": "https://github.com/Strilanc/SurfaceCodeTurnTable/issues"
   },
   "devDependencies": {
     "grunt": "1.0.1",
@@ -26,6 +26,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Strilanc/ZigXag.git"
+    "url": "https://github.com/Strilanc/SurfaceCodeTurnTable.git"
   }
 }

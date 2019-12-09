@@ -13,21 +13,11 @@ window.onerror = function(msg, url, line, col, error) {
     }
 };
 
-import {Revision} from "src/base/Revision.js";
 import {ChpSimulator} from "src/sim/ChpSimulator.js";
 import {PauliProduct} from "src/sim/PauliProduct.js";
 import {GeneralMap} from "src/base/GeneralMap.js";
 import {GeneralSet} from "src/base/GeneralSet.js";
-import {MathPainter} from "src/MathPainter.js";
-import {Painter} from "src/Painter.js";
-import {Rect} from "src/base/Rect.js";
-import {seq} from "src/base/Seq.js";
 import {Point} from "src/base/Point.js";
-import {ObservableValue} from "src/base/Obs.js";
-import {initUndoRedo} from "src/ui/UndoRedo.js";
-import {initUrlSync} from "src/ui/Url.js";
-import {initClear} from "src/ui/Clear.js";
-import {initExports, obsExportsIsShowing} from "src/ui/Export.js";
 import {PlacedStabilizer} from "src/PlacedStabilizer.js";
 import {CacheStabilizerSim} from "src/sim/CacheStabilizeSim.js";
 
@@ -42,13 +32,6 @@ let curShiftKey = false;
 let curMouseButton = undefined;
 let mouseDownX = undefined;
 let mouseDownY = undefined;
-
-let revision = new Revision([''], 0, false);
-
-let obsIsAnyOverlayShowing = new ObservableValue(false);
-initUrlSync(revision);
-initUndoRedo(revision, obsIsAnyOverlayShowing);
-initClear(revision, obsIsAnyOverlayShowing.observable());
 
 class StabilizerGroup {
     /**
@@ -420,14 +403,3 @@ document.addEventListener('keydown', e => {
     }
     draw();
 });
-
-revision.latestActiveCommit().subscribe(text => {
-    //noinspection EmptyCatchBlockJS,UnusedCatchParameterJS
-    try {
-        draw();
-    } catch (_) {
-        // Ensure subscription starts. Will be rethrown on next draw anyways.
-    }
-});
-
-// setInterval(draw, 100);
