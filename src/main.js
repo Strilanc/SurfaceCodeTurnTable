@@ -229,14 +229,14 @@ function twistCornerStabilizers(p, d, s) {
 }
 
 /**
- * @param {!int} n
- * @param {!int} d
- * @returns {Array.<!PauliProduct>}
+ * @param {!int} codeDistance The code distance.
+ * @returns {Array.<!PlacedStabilizer>}
  */
-function yConfigStabilizers(n, d) {
+function yConfigStabilizers(codeDistance) {
     let rs = [];
+    let n = codeDistance + 1;
 
-    if (d > 2) {
+    if (codeDistance > 2) {
         rs.push(new PlacedStabilizer(
             [
                 new Point(0, 1),
@@ -244,8 +244,8 @@ function yConfigStabilizers(n, d) {
                 new Point(2, 0),
             ],
             PauliProduct.fromString('XZZ')));
-        rs.push(...twistLineStabilizers(new Point(1, 1), new Point(0, d - 3), 0));
-        rs.push(...twistCornerStabilizers(new Point(1, d - 1), new Point(1, -1), d % 2));
+        rs.push(...twistLineStabilizers(new Point(1, 1), new Point(0, codeDistance - 3), 0));
+        rs.push(...twistCornerStabilizers(new Point(1, codeDistance - 1), new Point(1, -1), codeDistance % 2));
     } else {
         rs.push(new PlacedStabilizer(
             [new Point(0, 2), new Point(1, 2), new Point(0, 1)],
@@ -256,9 +256,51 @@ function yConfigStabilizers(n, d) {
             PauliProduct.fromString('XXXZ')
         ));
     }
-    rs.push(...twistLineStabilizers(new Point(2, d-1), new Point(n-4, 0), d % 2));
-    rs.push(...twistCornerStabilizers(new Point(n-1, d-1), new Point(-1, 1), d % 2));
-    rs.push(...twistLineStabilizers(new Point(n-1, d), new Point(0, n-d-1), (d + 1) % 2));
+    rs.push(...twistLineStabilizers(new Point(2, codeDistance-1), new Point(n-4, 0), codeDistance % 2));
+    rs.push(...twistCornerStabilizers(new Point(n-1, codeDistance-1), new Point(-1, 1), codeDistance % 2));
+    rs.push(...twistLineStabilizers(new Point(n-1, codeDistance), new Point(0, n-codeDistance-1), (codeDistance + 1) % 2));
+
+    let singles = [];
+    for (let i = 1; i < codeDistance - 1; i++) {
+        singles.push(new PlacedStabilizer(
+            [new Point(1, i)],
+            PauliProduct.fromString('Y'),
+        ));
+    }
+    for (let i = 2; i < codeDistance; i++) {
+        singles.push(new PlacedStabilizer(
+            [new Point(i, codeDistance-1)],
+            PauliProduct.fromString('Y'),
+        ));
+    }
+    singles.push(new PlacedStabilizer(
+        [new Point(1, codeDistance-1)],
+        PauliProduct.fromString('X'),
+    ));
+    singles.push(new PlacedStabilizer(
+        [new Point(0, 0)],
+        PauliProduct.fromString('Y'),
+    ));
+    singles.push(new PlacedStabilizer(
+        [new Point(1, 0)],
+        PauliProduct.fromString('X'),
+    ));
+    singles.push(new PlacedStabilizer(
+        [new Point(codeDistance, codeDistance-1)],
+        PauliProduct.fromString('X'),
+    ));
+    singles.push(new PlacedStabilizer(
+        [new Point(codeDistance, codeDistance)],
+        PauliProduct.fromString('Y'),
+    ));
+    singles.push(new PlacedStabilizer(
+        [new Point(codeDistance, codeDistance+1)],
+        PauliProduct.fromString('X'),
+    ));
+    singles.push(new PlacedStabilizer(
+        [new Point(codeDistance+1, codeDistance+1)],
+        PauliProduct.fromString('Y'),
+    ));
 
     rs.push(new PlacedStabilizer(
         [
@@ -268,9 +310,81 @@ function yConfigStabilizers(n, d) {
         ],
         PauliProduct.fromString('XZZ')));
 
-    let pts2 = new GeneralSet(...yConfigPoints(n, d).map(e => e.points[0]));
+
+    let pts2 = new GeneralSet(...yConfigPoints(n, codeDistance).map(e => e.points[0]));
     let rs2 = PlacedStabilizer.latticeSurgeryPatch(n - 1).filter(e => e.points.every(p => !pts2.has(p)));
-    return [...rs2, ...rs];
+    return [...rs2, ...rs, ...singles];
+}
+
+/**
+ * @param {!int} codeDistance The code distance.
+ * @returns {Array.<!PlacedStabilizer>}
+ */
+function yConfigStabilizersTight(codeDistance) {
+    let rs = [];
+    let n = codeDistance + 1;
+
+    rs.push(new PlacedStabilizer(
+        [
+            new Point(0, 1),
+            new Point(2, 1),
+            new Point(2, 0),
+        ],
+        PauliProduct.fromString('XZZ')));
+    rs.push(...twistCornerStabilizers(new Point(1, codeDistance), new Point(1, -1), (codeDistance + 1) % 2));
+    rs.push(...twistLineStabilizers(new Point(1, 1), new Point(0, codeDistance - 2), 0));
+    rs.push(...twistLineStabilizers(new Point(2, codeDistance), new Point(codeDistance-2, 0), (codeDistance + 1) % 2));
+    rs.push(new PlacedStabilizer(
+        [
+            new Point(codeDistance, codeDistance + 1),
+            new Point(codeDistance+1, codeDistance - 1),
+            new Point(codeDistance, codeDistance - 1),
+        ],
+        PauliProduct.fromString('XZZ')));
+    rs.push(new PlacedStabilizer(
+        [
+            new Point(codeDistance, codeDistance + 1),
+            new Point(codeDistance+1, codeDistance - 1),
+        ],
+        PauliProduct.fromString('ZX')));
+
+    let singles = [];
+    singles.push(new PlacedStabilizer(
+        [new Point(0, 0)],
+        PauliProduct.fromString('Y'),
+    ));
+    singles.push(new PlacedStabilizer(
+        [new Point(1, 0)],
+        PauliProduct.fromString('X'),
+    ));
+    for (let i = 1; i < codeDistance; i++) {
+        singles.push(new PlacedStabilizer(
+            [new Point(1, i)],
+            PauliProduct.fromString('Y'),
+        ));
+    }
+    singles.push(new PlacedStabilizer(
+        [new Point(1, codeDistance)],
+        PauliProduct.fromString('Z'),
+    ));
+    for (let i = 2; i <= codeDistance; i++) {
+        singles.push(new PlacedStabilizer(
+            [new Point(i, codeDistance)],
+            PauliProduct.fromString('Y'),
+        ));
+    }
+    singles.push(new PlacedStabilizer(
+        [new Point(codeDistance + 1, codeDistance)],
+        PauliProduct.fromString('X'),
+    ));
+    singles.push(new PlacedStabilizer(
+        [new Point(codeDistance + 1, codeDistance + 1)],
+        PauliProduct.fromString('Z'),
+    ));
+
+    let pts2 = new GeneralSet(...singles.map(e => e.points[0]));
+    let rs2 = PlacedStabilizer.latticeSurgeryPatch(n - 1).filter(e => e.points.every(p => !pts2.has(p)));
+    return [...rs2, ...rs, ...singles];
 }
 
 let n = 10;
@@ -280,7 +394,9 @@ let sim = new CacheStabilizerSim(
 stabilizerGroups.push(new StabilizerGroup("Standard", PlacedStabilizer.latticeSurgeryPatch(codeDistance)));
 stabilizerGroups.push(new StabilizerGroup("force X", init(n, 'X')));
 stabilizerGroups.push(new StabilizerGroup("force Z", init(n, 'Z')));
-stabilizerGroups.push(new StabilizerGroup("force Y", yConfigurationBorderHugger(n)));
+stabilizerGroups.push(new StabilizerGroup("Y2", yConfigStabilizers(codeDistance)));
+stabilizerGroups.push(new StabilizerGroup("Y3", yConfigStabilizersTight(codeDistance)));
+// stabilizerGroups.push(new StabilizerGroup("force Y", yConfigurationBorderHugger(n)));
 
 
 stabilizerGroups.push(new StabilizerGroup("X_L",
@@ -289,7 +405,7 @@ stabilizerGroups.push(new StabilizerGroup("Y_L",
     [PlacedStabilizer.latticeSurgeryPatchLogicalYObservable(codeDistance)]));
 stabilizerGroups.push(new StabilizerGroup("Z_L",
     [PlacedStabilizer.latticeSurgeryPatchLogicalZObservable(codeDistance)]));
-stabilizerGroups.push(new StabilizerGroup("error X", init(0, 'X')));
+// stabilizerGroups.push(new StabilizerGroup("error X", init(0, 'X')));
 
 
 function draw() {
@@ -403,3 +519,5 @@ document.addEventListener('keydown', e => {
     }
     draw();
 });
+
+draw();

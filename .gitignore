@@ -4,3 +4,4 @@ out/*
 .eslintrc
 *.git_ignore.js
 */__pycache__/*
+package-lock.json
