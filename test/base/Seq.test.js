@@ -882,3 +882,34 @@ suite.test('permutations', () => {
     );
     assertThat(seq(['a', 'b', 'c', 'd']).permutations().count()).isEqualTo(4 * 3 * 2);
 });
+
+suite.test('combinations', () => {
+    assertThat(seq([]).combinationsRange(0, 0)).iteratesAs([]);
+    assertThat(seq([]).combinationsRange(0, 1)).iteratesAs([]);
+    assertThat(seq([]).combinationsRange(0, 5)).iteratesAs([]);
+
+    assertThat(seq(['a']).combinationsRange(0, 0)).iteratesAs([]);
+    assertThat(seq(['a']).combinationsRange(0, 1)).iteratesAs([], ['a']);
+    assertThat(seq(['a']).combinationsRange(0, 2)).iteratesAs([], ['a']);
+
+    assertThat(seq(['a', 'b']).combinationsRange(0, 0)).iteratesAs([]);
+    assertThat(seq(['a', 'b']).combinationsRange(0, 1)).iteratesAs([], ['a'], ['b']);
+    assertThat(seq(['a', 'b']).combinationsRange(0, 2)).iteratesAs([], ['a'], ['b'], ['a', 'b']);
+
+    assertThat(seq(['a', 'b', 'c']).combinationsRange(0, 0)).iteratesAs([]);
+    assertThat(seq(['a', 'b', 'c']).combinationsRange(0, 1)).iteratesAs([], ['a'], ['b'], ['c']);
+    assertThat(seq(['a', 'b', 'c']).combinationsRange(0, 2)).iteratesAs(
+        [],
+        ['a'], ['b'], ['c'],
+        ['a', 'b'], ['a', 'c'], ['b', 'c']);
+    assertThat(seq(['a', 'b', 'c']).combinationsRange(1, 2)).iteratesAs(
+        ['a'], ['b'], ['c'],
+        ['a', 'b'], ['a', 'c'], ['b', 'c']);
+    assertThat(seq(['a', 'b', 'c']).combinationsRange(2, 2)).iteratesAs(
+        ['a', 'b'], ['a', 'c'], ['b', 'c']);
+    assertThat(seq(['a', 'b', 'c']).combinationsRange(0, 3)).iteratesAs(
+        [],
+        ['a'], ['b'], ['c'],
+        ['a', 'b'], ['a', 'c'], ['b', 'c'],
+        ['a', 'b', 'c']);
+});

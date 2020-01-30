@@ -78,9 +78,6 @@ function qubitAt(pt) {
     return qubitMap.get(pt);
 }
 
-let qubitMap = new GeneralMap();
-let stabilizerGroups = [];
-
 /**
  * @param {!int} n
  * @param {!int} d
@@ -387,26 +384,31 @@ function yConfigStabilizersTight(codeDistance) {
     return [...rs2, ...rs, ...singles];
 }
 
-let n = 10;
-let codeDistance = n - 1;
-let sim = new CacheStabilizerSim(
-    new ChpSimulator((codeDistance + 2)*(codeDistance + 2) + 1));
-stabilizerGroups.push(new StabilizerGroup("Standard", PlacedStabilizer.latticeSurgeryPatch(codeDistance)));
-stabilizerGroups.push(new StabilizerGroup("force X", init(n, 'X')));
-stabilizerGroups.push(new StabilizerGroup("force Z", init(n, 'Z')));
-stabilizerGroups.push(new StabilizerGroup("Y2", yConfigStabilizers(codeDistance)));
-stabilizerGroups.push(new StabilizerGroup("Y3", yConfigStabilizersTight(codeDistance)));
-// stabilizerGroups.push(new StabilizerGroup("force Y", yConfigurationBorderHugger(n)));
+/**
+ * @param {!int} codeDistance
+ * @returns {!Array.<!StabilizerGroup>}
+ */
+function makeStabilizerGroups(codeDistance) {
+    let result = [];
+    let n = codeDistance + 1;
+    result.push(new StabilizerGroup("Standard", PlacedStabilizer.latticeSurgeryPatch(codeDistance)));
+    result.push(new StabilizerGroup("force X", init(n, 'X')));
+    result.push(new StabilizerGroup("force Z", init(n, 'Z')));
+    result.push(new StabilizerGroup("Twist init Y", yConfigStabilizersTight(codeDistance)));
 
+    result.push(new StabilizerGroup("X_L",
+        [PlacedStabilizer.latticeSurgeryPatchLogicalXObservable(codeDistance)]));
+    result.push(new StabilizerGroup("Y_L",
+        [PlacedStabilizer.latticeSurgeryPatchLogicalYObservable(codeDistance)]));
+    result.push(new StabilizerGroup("Z_L",
+        [PlacedStabilizer.latticeSurgeryPatchLogicalZObservable(codeDistance)]));
+    return result;
+}
 
-stabilizerGroups.push(new StabilizerGroup("X_L",
-    [PlacedStabilizer.latticeSurgeryPatchLogicalXObservable(codeDistance)]));
-stabilizerGroups.push(new StabilizerGroup("Y_L",
-    [PlacedStabilizer.latticeSurgeryPatchLogicalYObservable(codeDistance)]));
-stabilizerGroups.push(new StabilizerGroup("Z_L",
-    [PlacedStabilizer.latticeSurgeryPatchLogicalZObservable(codeDistance)]));
-// stabilizerGroups.push(new StabilizerGroup("error X", init(0, 'X')));
-
+let codeDistance = 9;
+let sim = new ChpSimulator((codeDistance + 2) * (codeDistance + 2) + 1);
+let qubitMap = new GeneralMap();
+let stabilizerGroups = makeStabilizerGroups(codeDistance);
 
 function draw() {
     canvas.width = canvasDiv.clientWidth;

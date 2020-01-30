@@ -294,10 +294,22 @@ class PlacedStabilizer {
     }
 
     /**
+     * @param {!PlacedStabilizer} seed
+     * @param {...!PlacedStabilizer} items
+     */
+    static product(seed, ...items) {
+        let result = seed;
+        for (let item of items) {
+            result = result.times(item);
+        }
+        return result;
+    }
+
+    /**
      * @param {!ChpSimulator} sim
      * @param {!function(!Point): *} qubitAt
      * @param {!boolean} active
-     * @returns {{main: !string, per: !Array.<!string>}}
+     * @returns {{main: !string, per: !Array.<!string>, hasMain: !boolean}}
      */
     colors(sim, qubitAt, active) {
         let r = this.paulis.toString().substr(1);
@@ -311,12 +323,13 @@ class PlacedStabilizer {
             brightness = 1 - this.probability(sim, qubitAt);
         }
 
-        let mainColor = pauliColor(hasX + hasY + hasZ !== 1 ? '_' : r[0], brightness);
+        let hasMain = hasX + hasY + hasZ === 1;
+        let mainColor = pauliColor( hasMain ? r[0] : '_', brightness);
         let individualColors = [];
         for (let i = 0; i < r.length; i++) {
             individualColors.push(pauliColor(r[i], brightness));
         }
-        return {main: mainColor, per: individualColors}
+        return {hasMain, main: mainColor, per: individualColors}
     }
 
     /**
@@ -421,6 +434,24 @@ class PlacedStabilizer {
             ctx.closePath();
             ctx.fill();
             ctx.stroke();
+
+            if (!colors.hasMain) {
+                ctx.save();
+                try {
+                    ctx.clip();
+                    for (let j = 0; j < this.points.length; j++) {
+                        ctx.fillStyle = colors.per[j];
+                        let p = place(this.points[j]);
+                        ctx.beginPath();
+                        ctx.moveTo(p.x, p.y);
+                        ctx.arc(p.x, p.y, r * 3/4, 0, 2*Math.PI);
+                        ctx.closePath();
+                        ctx.fill();
+                    }
+                } finally {
+                    ctx.restore();
+                }
+            }
         } else {
             let p = place(this.points[this.points.length - 1]);
             ctx.beginPath();

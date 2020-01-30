@@ -1035,6 +1035,23 @@ class Seq {
     }
 
     /**
+     * Returns all ways to choose up to a certain number of items from the input.
+     * @param {!int} minPickCount
+     * @param {!int} maxPickCount
+     * @yields {!Array.<T>}
+     * @template T
+     */
+    combinationsRange(minPickCount, maxPickCount) {
+        let seq = this;
+        return Seq.fromGenerator(function*() {
+            let items = seq.toArray();
+            for (let i = minPickCount; i <= maxPickCount; i++) {
+                yield* _combinations(seq.toArray(), i, 0);
+            }
+        });
+    }
+
+    /**
      * Conditionally applies a transformation to the sequence.
      * If the given condition is false, the original sequence is returned.
      * If the given condition is true, the sequence is run through the given transformation and the result is returned.
@@ -1170,6 +1187,25 @@ class Seq {
                 yield e;
             }
         });
+    }
+}
+
+/**
+ * @param {!Array.<!T>} items
+ * @param {!int} pickCount
+ * @param {!int} skipCount
+ * @yields {!Array.<T>}
+ * @template T
+ */
+function* _combinations(items, pickCount, skipCount) {
+    if (pickCount === 0) {
+        yield [];
+        return;
+    }
+    for (let i = skipCount; i < items.length; i++) {
+        for (let subCombo of _combinations(items, pickCount - 1, i + 1)) {
+            yield [items[i], ...subCombo];
+        }
     }
 }
 
